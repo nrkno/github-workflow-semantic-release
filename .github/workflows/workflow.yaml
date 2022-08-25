@@ -1,0 +1,139 @@
+---
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        type: string
+        default: self-hosted
+
+name: Commit lint and semantic release
+jobs:
+  setup:
+    name: Setup
+    runs-on: ${{ inputs.runs-on }}
+    outputs:
+      workflow_tag: ${{ steps.workflow_tag.outputs.workflow_tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Get workflow ref
+        id: workflow_tag
+        shell: bash
+        run: |
+          workflow_file="${GITHUB_WORKFLOW}"
+          if ! [ -f "${workflow_file}" ]
+          then
+            workflow_file="$(grep -l "^name: ${GITHUB_WORKFLOW}$" .github/workflows/*)"
+          fi
+          workflow_tag="$(awk -F @ '/github-workflow-semantic-release/ {print $2}' "${workflow_file}")"
+          echo "::set-output name=workflow_tag::${workflow_tag}"
+  commitlint:
+    needs: setup
+    name: Commit lint
+    runs-on: ${{ inputs.runs-on }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Checkout workflow
+        uses: actions/checkout@v3
+        with:
+          repository: nrkno/github-workflow-semantic-release
+          ref: ${{ needs.setup.outputs.workflow_tag }}
+          path: .github-workflow-semantic-release
+      - name: Set configuration
+        id: set_config
+        shell: bash
+        run: |
+          if [ -f "commitlint.config.js" ]
+          then
+            echo "Using callers configuration for commitlint"
+            echo "::set-output name=commitlintconfig::commitlint.config.js"
+          else
+            echo "Using workflow configuration for commitlint"
+            echo "::set-output name=commitlintconfig::.github-workflow-semantic-release/commitlint.config.js"
+          fi
+      - uses: wagoid/commitlint-github-action@v4
+        id: lint
+        continue-on-error: ${{ github.event_name == 'pull_request' }}
+        with:
+          configFile: ${{ steps.set_config.outputs.commitlintconfig }}
+      - uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            if(`${{steps.lint.outcome}}` === "success") {
+              return "No errors";
+            };
+
+            output = `
+            You have commit message errors
+
+            To correct, run \`git rebase -i HEAD~X\`, where X is number of commits, and change from pick to reword, save, and then change the commit message.
+
+            List of errors:
+            `;
+            JSON.parse(`${{steps.lint.outputs.results}}`).forEach(result => {
+              if(result.warnings.length > 0 || result.errors.length > 0) {
+                output += `Commit ${result.hash}, message \`${result.message}\``;
+                output += "\n";
+                result.warnings.forEach(warning => {
+                  output += `⚠  ${warning}`;
+                });
+                result.errors.forEach(error => {
+                  output += `⧗  ${error}`;
+                });
+                output += "\n\n";
+              }
+            });
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });
+
+            core.setFailed("commit message lint failed");
+
+  release:
+    name: Release
+    needs: setup
+    runs-on: ${{ inputs.runs-on }}
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Checkout workflow
+        uses: actions/checkout@v3
+        with:
+          repository: nrkno/github-workflow-semantic-release
+          ref: ${{ needs.setup.outputs.workflow_tag }}
+          path: .github-workflow-semantic-release
+      - name: Set configuration
+        id: set_config
+        shell: bash
+        run: |
+          if [ -f ".releaserc.json" ]
+          then
+            echo "Using callers configuration for release config"
+          else
+            echo "Using workflow configuration for release config"
+            cp .github-workflow-semantic-release/.releaserc.json .releaserc.json
+          fi
+          repo_name=$(sed 's|.*/?||' <<<$GITHUB_ACTION_REPOSITORY)
+          sed "s/github-workflow-semantic-release/${repo_name}/" .github-workflow-semantic-release/package.json > package.json
+          cp .github-workflow-semantic-release/package-lock.json .
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 'lts/*'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release

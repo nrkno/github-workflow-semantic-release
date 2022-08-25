@@ -1,0 +1,9 @@
+---
+on: [push, pull_request]
+
+name: Commit lint and release
+jobs:
+  lint_release:
+    uses: ./.github/workflows/workflow.yaml
+    with:
+      runs-on: ubuntu-latest
