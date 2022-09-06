@@ -2,6 +2,9 @@
 on:
   workflow_call:
     inputs:
+      release-enabled:
+        type: boolean
+        default: true
       runs-on:
         type: string
         default: self-hosted
@@ -100,7 +103,7 @@ jobs:
     name: Release
     needs: setup
     runs-on: ${{ inputs.runs-on }}
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+    if: inputs.release-enabled && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
     steps:
       - name: Checkout
         uses: actions/checkout@v2
