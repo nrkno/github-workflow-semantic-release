@@ -77,7 +77,12 @@ jobs:
 
             List of errors:
             `;
-            JSON.parse(`${{steps.lint.outputs.results}}`).forEach(result => {
+            // Set raw JSON result output here without string interpolation.
+            // The JSON string might contain backticks. Rely on GitHub Actions
+            // validation with fromJSON and toJSON.
+            const results = ${{ toJSON(fromJSON(steps.lint.outputs.results)) }};
+
+            results.forEach(result => {
               if(result.warnings.length > 0 || result.errors.length > 0) {
                 output += `Commit ${result.hash}, message \`${result.message}\``;
                 output += "\n";
