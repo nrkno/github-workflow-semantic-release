@@ -6,12 +6,12 @@ Reusable Github workflow for linting commits and make releases using
 ## Usage
 
 This workflow will use sensible defaults for
-[commintlint](https://commitlint.js.org) and
+[commitlint](https://commitlint.js.org) and
 [semantic-release](https://github.com/semantic-release/semantic-release/)
 
 If you want to override the
-[commintlint configuration](https://commitlint.js.org/#/reference-configuration),
-create a file in your repo named `commintlint.config.js` and this will
+[commitlint configuration](https://commitlint.js.org/#/reference-configuration),
+create a file in your repo named `commitlint.config.js` and this will
 be used instead of the default in this workflow.
 
 If you want to override the
