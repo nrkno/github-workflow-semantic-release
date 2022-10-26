@@ -71,7 +71,8 @@ jobs:
             };
 
             output = `
-            You have commit message errors
+            You have commit message errors, your commit messages
+            must follow [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/#summary)
 
             To correct, run \`git rebase -i HEAD~X\`, where X is number of commits, and change from pick to reword, save, and then change the commit message.
 
