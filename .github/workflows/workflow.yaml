@@ -30,6 +30,7 @@ jobs:
           fi
           workflow_tag="$(awk -F @ '/github-workflow-semantic-release/ {print $2}' "${workflow_file}")"
           echo "::set-output name=workflow_tag::${workflow_tag}"
+
   commitlint:
     needs: setup
     name: Commit lint
