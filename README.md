@@ -25,7 +25,7 @@ Reference for a workflow job.
 jobs:
   commitlint_and_release:
     name: Commit lint and release
-    uses: nrkno/github-workflow-semantic-release/.github/workflows/wokflow.yaml@v1
+    uses: nrkno/github-workflow-semantic-release/.github/workflows/workflow.yaml@v1
     with:
       # Define the type of machine to run the jobs on.
       # Default: self-hosted
