@@ -106,6 +106,48 @@ jobs:
 
             core.setFailed("commit message lint failed");
 
+  dry-run:
+    name: Release dry-run
+    needs: setup
+    runs-on: ${{ inputs.runs-on }}
+    if: inputs.dry-run == true && inputs.release-enabled && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Checkout workflow
+        uses: actions/checkout@v3
+        with:
+          repository: nrkno/github-workflow-semantic-release
+          ref: ${{ needs.setup.outputs.workflow_tag }}
+          path: .github-workflow-semantic-release
+      - name: Set configuration
+        id: set_config
+        shell: bash
+        run: |
+          if [ -f ".releaserc.json" ]
+          then
+            echo "Using callers configuration for release config"
+          else
+            echo "Using workflow configuration for release config"
+            cp .github-workflow-semantic-release/.releaserc.json .releaserc.json
+          fi
+          repo_name=$(sed 's|.*/?||' <<<$GITHUB_ACTION_REPOSITORY)
+          sed "s/github-workflow-semantic-release/${repo_name}/" .github-workflow-semantic-release/package.json > package.json
+          cp .github-workflow-semantic-release/package-lock.json .
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 'lts/*'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "version=$(npx semantic-release -d)" >> $GITHUB_OUTPUT
+        
   release:
     name: Release
     needs: setup
