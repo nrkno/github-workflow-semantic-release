@@ -147,12 +147,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: echo "version=$(npx semantic-release -d)" >> $GITHUB_OUTPUT
-        
+
   release:
     name: Release
     needs: setup
     runs-on: ${{ inputs.runs-on }}
-    if: inputs.release-enabled && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
+    if: ! ${{ inputs.dry-run }} && inputs.release-enabled && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
     steps:
       - name: Checkout
         uses: actions/checkout@v2
