@@ -116,7 +116,7 @@ jobs:
     name: Release
     needs: setup
     runs-on: ${{ inputs.runs-on }}
-    if: inputs.release-enabled && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
+    if: inputs.release-enabled && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') || inputs.dry-run
     outputs:
       version: ${{ steps.release.outputs.version }}
     steps:
