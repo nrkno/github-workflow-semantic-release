@@ -157,7 +157,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: inputs.dry-run
         #run: echo "version=$(npx semantic-release -d)" >> $GITHUB_OUTPUT
-        run: npx semantic-release -d --no-ci --branches ${{ github.ref }}
+        run: npx semantic-release -d --no-ci
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
