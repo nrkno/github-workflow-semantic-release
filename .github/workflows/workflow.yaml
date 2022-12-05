@@ -8,6 +8,9 @@ on:
       runs-on:
         type: string
         default: self-hosted
+      dry-run:
+        type: boolean
+        default: false
 
 name: Commit lint and semantic release
 jobs:
@@ -146,10 +149,10 @@ jobs:
       - name: Release dry-run
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: ${{ inputs.dry-run }}
+        if: inputs.dry-run
         run: echo "version=$(npx semantic-release -d)" >> $GITHUB_OUTPUT
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: ! ${{ inputs.dry-run }}
+        if: ! inputs.dry-run
         run: npx semantic-release
