@@ -1,8 +1,6 @@
 {
     "branches": [
-      "main",
-      "master",
-      "refs/pull/161/merge"
+      "fix_test_build"
     ],
     "plugins": [
       [
