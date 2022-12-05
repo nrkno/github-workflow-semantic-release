@@ -11,6 +11,9 @@ on:
       dry-run:
         type: boolean
         default: false
+    outputs:
+      version:
+        value: ${{ jobs.release.outputs.version }}
 
 name: Commit lint and semantic release
 jobs:
@@ -114,6 +117,8 @@ jobs:
     needs: setup
     runs-on: ${{ inputs.runs-on }}
     if: inputs.release-enabled && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
+    outputs:
+      version: ${{ steps.release.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -147,6 +152,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Release dry-run
+        id: dryrun
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: inputs.dry-run
