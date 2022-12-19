@@ -29,7 +29,7 @@ jobs:
             workflow_file="$(grep -l "^name: ${GITHUB_WORKFLOW}$" .github/workflows/*)"
           fi
           workflow_tag="$(awk -F @ '/github-workflow-semantic-release/ {print $2}' "${workflow_file}")"
-          echo "::set-output name=workflow_tag::${workflow_tag}"
+          echo "workflow_tag=${workflow_tag}" >> $GITHUB_OUTPUT
 
   commitlint:
     needs: setup
@@ -53,10 +53,10 @@ jobs:
           if [ -f "commitlint.config.js" ]
           then
             echo "Using callers configuration for commitlint"
-            echo "::set-output name=commitlintconfig::commitlint.config.js"
+            echo "commitlintconfig=commitlint.config.json" >> $GITHUB_OUTPUT
           else
             echo "Using workflow configuration for commitlint"
-            echo "::set-output name=commitlintconfig::.github-workflow-semantic-release/commitlint.config.js"
+            echo "commitlintconfig=.github-workflow-semantic-release/commitlint.config.json" >> $GITHUB_OUTPUT
           fi
       - uses: wagoid/commitlint-github-action@v4
         id: lint
