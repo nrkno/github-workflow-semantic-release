@@ -7,7 +7,7 @@ on:
         default: true
       runs-on:
         type: string
-        default: self-hosted
+        default: nrk-azure-intern
 
 name: Commit lint and semantic release
 jobs:
