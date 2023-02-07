@@ -56,7 +56,7 @@ jobs:
             echo "commitlintconfig=commitlint.config.json" >> $GITHUB_OUTPUT
           else
             echo "Using workflow configuration for commitlint"
-            echo "commitlintconfig=.github-workflow-semantic-release/commitlint.config.json" >> $GITHUB_OUTPUT
+            echo "commitlintconfig=.github-workflow-semantic-release/commitlint.config.js" >> $GITHUB_OUTPUT
           fi
       - uses: wagoid/commitlint-github-action@v4
         id: lint
