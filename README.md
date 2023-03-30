@@ -28,7 +28,7 @@ jobs:
     uses: nrkno/github-workflow-semantic-release/.github/workflows/workflow.yaml@v1
     with:
       # Define the type of machine to run the jobs on.
-      # Default: self-hosted
+      # Default: nrk-azure-intern
       runs-on: ubuntu-latest
       # Enable release on main/master
       # Default: true
