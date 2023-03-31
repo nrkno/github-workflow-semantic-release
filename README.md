@@ -27,10 +27,10 @@ jobs:
     name: Commit lint and release
     uses: nrkno/github-workflow-semantic-release/.github/workflows/workflow.yaml@v1
     with:
-      # Define the type of machine to run the jobs on.
-      # Default: self-hosted
-      runs-on: ubuntu-latest
-      # Enable release on main/master
-      # Default: true
-      release-enabled: true
+      # inputs
+    secrets:
+      # secrets
 ```
+
+<!-- autodoc start -->
+<!-- autodoc end -->
