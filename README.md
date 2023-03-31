@@ -33,4 +33,7 @@ jobs:
 ```
 
 <!-- autodoc start -->
+### Inputs
+- `release-enabled` (boolean, default `true`)
+- `runs-on` (string, default `"nrk-azure-intern"`)
 <!-- autodoc end -->
