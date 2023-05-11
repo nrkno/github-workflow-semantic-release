@@ -9,4 +9,4 @@ updates:
       timezone: "Europe/Oslo"
     open-pull-requests-limit: 5
     reviewers:
-      - nrkno/iac-admins
+      - nrkno/plattform-utvikleropplevelse
