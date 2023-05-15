@@ -11,6 +11,41 @@ on:
       runs-on:
         type: string
         default: nrk-azure-intern
+    outputs:
+      # Outputs as described here: https://github.com/codfish/semantic-release-action/blob/main/action.yml#L56
+      new-release-published:
+        description: "Either `'true'` when a new release was published or `'false'` when no release was published."
+        value: ${{ jobs.release.outputs.new-release-published}}
+      release-version:
+        description: "The new releases' semantic version, i.e. `1.8.3`."
+        value: ${{ jobs.release.outputs.release-version}}
+      release-major:
+        description: "The new releases' major version number, i.e. `1`."
+        value: ${{ jobs.release.outputs.release-major}}
+      release-minor:
+        description: "The new releases' minor version number, i.e. `8`."
+        value: ${{ jobs.release.outputs.release-minor}}
+      release-patch:
+        description: "The new releases' patch version number, i.e. `3`."
+        value: ${{ jobs.release.outputs.release-patch}}
+      release-notes:
+        description: "The release notes of the next release."
+        value: ${{ jobs.release.outputs.release-notes}}
+      type:
+        description: "The semver export type of the release, e.g. `major`, `prerelease`, etc."
+        value: ${{ jobs.release.outputs.type}}
+      channel:
+        description: "The release channel of the release."
+        value: ${{ jobs.release.outputs.channel}}
+      git-head:
+        description: "The git hash of the release."
+        value: ${{ jobs.release.outputs.git-head}}
+      git-tag:
+        description: "The version with v prefix."
+        value: ${{ jobs.release.outputs.git-tag}}
+      name:
+        description: "The release name."
+        value: ${{ jobs.release.outputs.name}}
 
 name: Commit lint and semantic release
 jobs:
@@ -22,6 +57,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Useful default vars
+        run: |
+          echo "Workflow name:  $GITHUB_WORKFLOW"
+          echo "Workspace:      $GITHUB_WORKSPACE"
+          echo "Event:          $GITHUB_EVENT_NAME"
+          echo "SHA:            $GITHUB_SHA"
+          echo "Ref:            $GITHUB_REF" 
       - name: Get workflow ref
         id: workflow_tag
         shell: bash
@@ -113,6 +155,18 @@ jobs:
   release:
     name: Release
     needs: setup
+    outputs:
+      new-release-published: ${{ steps.release.outputs.new-release-published }}
+      release-version: ${{ steps.release.outputs.release-version }}
+      release-major: ${{ steps.release.outputs.release-major }}
+      release-minor: ${{ steps.release.outputs.release-minor }}
+      release-patch: ${{ steps.release.outputs.release-patch }}
+      release-notes: ${{ steps.release.outputs.release-notes }}
+      type: ${{ steps.release.outputs.type }}
+      channel: ${{ steps.release.outputs.channel }}
+      git-head: ${{ steps.release.outputs.git-head }}
+      git-tag: ${{ steps.release.outputs.git-tag }}
+      name: ${{ steps.release.outputs.name }}
     runs-on: ${{ inputs.runs-on }}
     if: inputs.release-enabled && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
     steps:
@@ -147,7 +201,7 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Release
-        env:
+      - uses: codfish/semantic-release-action@v2.2.0
+        id: release
+        env: 
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
