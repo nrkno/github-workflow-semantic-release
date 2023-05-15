@@ -57,13 +57,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Useful default vars
-        run: |
-          echo "Workflow name:  $GITHUB_WORKFLOW"
-          echo "Workspace:      $GITHUB_WORKSPACE"
-          echo "Event:          $GITHUB_EVENT_NAME"
-          echo "SHA:            $GITHUB_SHA"
-          echo "Ref:            $GITHUB_REF" 
       - name: Get workflow ref
         id: workflow_tag
         shell: bash
@@ -71,7 +64,7 @@ jobs:
           workflow_file="${GITHUB_WORKFLOW}"
           if ! [ -f "${workflow_file}" ]
           then
-            workflow_file="$(grep -l "^name: ${GITHUB_WORKFLOW}$" .github/workflows/*)"
+            workflow_file="$(grep -El "^name: (\"|)${GITHUB_WORKFLOW}(\"|)$" .github/workflows/*)"
           fi
           workflow_tag="$(awk -F @ '/github-workflow-semantic-release/ {print $2}' "${workflow_file}")"
           echo "workflow_tag=${workflow_tag}" >> $GITHUB_OUTPUT
