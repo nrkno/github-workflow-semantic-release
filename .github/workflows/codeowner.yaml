@@ -6,7 +6,7 @@ on:
 
 jobs:
   validate:
-    runs-on: [nrk-azure-intern, self-hosted]
+    runs-on: [nrk-azure-intern]
 
     steps:
       - uses: actions/checkout@master
