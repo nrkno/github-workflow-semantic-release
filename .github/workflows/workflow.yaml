@@ -56,7 +56,7 @@ jobs:
       workflow_tag: ${{ steps.workflow_tag.outputs.workflow_tag }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.5.3
       - name: Get workflow ref
         id: workflow_tag
         shell: bash
@@ -76,11 +76,11 @@ jobs:
     if: inputs.lint-enabled
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.5.3
         with:
           fetch-depth: 0
       - name: Checkout workflow
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.5.3
         with:
           repository: nrkno/github-workflow-semantic-release
           ref: ${{ needs.setup.outputs.workflow_tag }}
@@ -164,11 +164,11 @@ jobs:
     if: inputs.release-enabled && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.5.3
         with:
           fetch-depth: 0
       - name: Checkout workflow
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.5.3
         with:
           repository: nrkno/github-workflow-semantic-release
           ref: ${{ needs.setup.outputs.workflow_tag }}
@@ -188,7 +188,7 @@ jobs:
           sed "s/github-workflow-semantic-release/${repo_name}/" .github-workflow-semantic-release/package.json > package.json
           cp .github-workflow-semantic-release/package-lock.json .
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v3.6.0
         with:
           node-version: 'lts/*'
           cache: npm
@@ -208,7 +208,6 @@ jobs:
             IFS='.' read -r -a VERSION_ARRAY <<< "${VERSION:1}"
 
             echo "new-release-published=${{ steps.release.outputs.new-release-published }}" >> $GITHUB_OUTPUT
-<<<<<<< HEAD
             echo "release-version=${VERSION}" >> $GITHUB_OUTPUT
             echo "release-major=${VERSION_ARRAY[0]}" >> $GITHUB_OUTPUT
             echo "release-minor=${VERSION_ARRAY[1]}" >> $GITHUB_OUTPUT
@@ -218,15 +217,6 @@ jobs:
             echo "${{ steps.release.outputs.release-notes }}" >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
 
-=======
-            echo "release-version=${VERSION:1}" >> $GITHUB_OUTPUT
-            echo "release-major=${VERSION_ARRAY[0]}" >> $GITHUB_OUTPUT
-            echo "release-minor=${VERSION_ARRAY[1]}" >> $GITHUB_OUTPUT
-            echo "release-patch=${VERSION_ARRAY[2]}" >> $GITHUB_OUTPUT
-            echo "release-notes<<EOF" >> $GITHUB_OUTPUT
-            echo ${{ steps.release.outputs.release-notes }} >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
->>>>>>> ec2b44a (feat: always output version)
             echo "type=${{ steps.release.outputs.type }}" >> $GITHUB_OUTPUT
             echo "channel=${{ steps.release.outputs.channel }}" >> $GITHUB_OUTPUT
             echo "git-head=${{ steps.release.outputs.git-head }}" >> $GITHUB_OUTPUT
@@ -238,17 +228,11 @@ jobs:
             echo "release-major=${{ steps.release.outputs.release-major }}" >> $GITHUB_OUTPUT
             echo "release-minor=${{ steps.release.outputs.release-minor }}" >> $GITHUB_OUTPUT
             echo "release-patch=${{ steps.release.outputs.release-patch }}" >> $GITHUB_OUTPUT
-<<<<<<< HEAD
 
             echo "release-notes<<EOF" >> $GITHUB_OUTPUT
             echo "${{ steps.release.outputs.release-notes }}" >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
             
-=======
-            echo "release-notes<<EOF" >> $GITHUB_OUTPUT
-            echo ${{ steps.release.outputs.release-notes }} >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
->>>>>>> ec2b44a (feat: always output version)
             echo "type=${{ steps.release.outputs.type }}" >> $GITHUB_OUTPUT
             echo "channel=${{ steps.release.outputs.channel }}" >> $GITHUB_OUTPUT
             echo "git-head=${{ steps.release.outputs.git-head }}" >> $GITHUB_OUTPUT
