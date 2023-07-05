@@ -8,8 +8,6 @@ updates:
       time: "09:00"
       timezone: "Europe/Oslo"
     open-pull-requests-limit: 5
-    reviewers:
-      - nrkno/plattform-utvikleropplevelse
   - package-ecosystem: npm
     directory: "/"
     schedule:
@@ -17,5 +15,3 @@ updates:
       time: "09:00"
       timezone: "Europe/Oslo"
     open-pull-requests-limit: 5
-    reviewers:
-      - nrkno/plattform-utvikleropplevelse
