@@ -149,17 +149,17 @@ jobs:
     name: Release
     needs: setup
     outputs:
-      new-release-published: ${{ steps.release.outputs.new-release-published }}
-      release-version: ${{ steps.release.outputs.release-version }}
-      release-major: ${{ steps.release.outputs.release-major }}
-      release-minor: ${{ steps.release.outputs.release-minor }}
-      release-patch: ${{ steps.release.outputs.release-patch }}
-      release-notes: ${{ steps.release.outputs.release-notes }}
-      type: ${{ steps.release.outputs.type }}
-      channel: ${{ steps.release.outputs.channel }}
-      git-head: ${{ steps.release.outputs.git-head }}
-      git-tag: ${{ steps.release.outputs.git-tag }}
-      name: ${{ steps.release.outputs.name }}
+      new-release-published: ${{ steps.version.outputs.new-release-published }}
+      release-version: ${{ steps.version.outputs.release-version }}
+      release-major: ${{ steps.version.outputs.release-major }}
+      release-minor: ${{ steps.version.outputs.release-minor }}
+      release-patch: ${{ steps.version.outputs.release-patch }}
+      release-notes: ${{ steps.version.outputs.release-notes }}
+      type: ${{ steps.version.outputs.type }}
+      channel: ${{ steps.version.outputs.channel }}
+      git-head: ${{ steps.version.outputs.git-head }}
+      git-tag: ${{ steps.version.outputs.git-tag }}
+      name: ${{ steps.version.outputs.name }}
     runs-on: ${{ inputs.runs-on }}
     if: inputs.release-enabled && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
     steps:
@@ -198,3 +198,61 @@ jobs:
         id: release
         env: 
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get version
+        id: version
+        shell: bash
+        run: |
+          if [[ "${{ steps.release.outputs.new-release-published }}" == "false" ]]; then
+            VERSION=$(curl --silent "https://api.github.com/repos/${{ github.repository }}/releases/latest" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" | jq -r .name)
+
+            IFS='.' read -r -a VERSION_ARRAY <<< "${VERSION:1}"
+
+            echo "new-release-published=${{ steps.release.outputs.new-release-published }}" >> $GITHUB_OUTPUT
+<<<<<<< HEAD
+            echo "release-version=${VERSION}" >> $GITHUB_OUTPUT
+            echo "release-major=${VERSION_ARRAY[0]}" >> $GITHUB_OUTPUT
+            echo "release-minor=${VERSION_ARRAY[1]}" >> $GITHUB_OUTPUT
+            echo "release-patch=${VERSION_ARRAY[2]}" >> $GITHUB_OUTPUT
+
+            echo "release-notes<<EOF" >> $GITHUB_OUTPUT
+            echo "${{ steps.release.outputs.release-notes }}" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+
+=======
+            echo "release-version=${VERSION:1}" >> $GITHUB_OUTPUT
+            echo "release-major=${VERSION_ARRAY[0]}" >> $GITHUB_OUTPUT
+            echo "release-minor=${VERSION_ARRAY[1]}" >> $GITHUB_OUTPUT
+            echo "release-patch=${VERSION_ARRAY[2]}" >> $GITHUB_OUTPUT
+            echo "release-notes<<EOF" >> $GITHUB_OUTPUT
+            echo ${{ steps.release.outputs.release-notes }} >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+>>>>>>> ec2b44a (feat: always output version)
+            echo "type=${{ steps.release.outputs.type }}" >> $GITHUB_OUTPUT
+            echo "channel=${{ steps.release.outputs.channel }}" >> $GITHUB_OUTPUT
+            echo "git-head=${{ steps.release.outputs.git-head }}" >> $GITHUB_OUTPUT
+            echo "git-tag=${VERSION}" >> $GITHUB_OUTPUT
+            echo "name=${VERSION}" >> $GITHUB_OUTPUT
+          else
+            echo "new-release-published=${{ steps.release.outputs.new-release-published }}" >> $GITHUB_OUTPUT
+            echo "release-version=${{ steps.release.outputs.release-version }}" >> $GITHUB_OUTPUT
+            echo "release-major=${{ steps.release.outputs.release-major }}" >> $GITHUB_OUTPUT
+            echo "release-minor=${{ steps.release.outputs.release-minor }}" >> $GITHUB_OUTPUT
+            echo "release-patch=${{ steps.release.outputs.release-patch }}" >> $GITHUB_OUTPUT
+<<<<<<< HEAD
+
+            echo "release-notes<<EOF" >> $GITHUB_OUTPUT
+            echo "${{ steps.release.outputs.release-notes }}" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            
+=======
+            echo "release-notes<<EOF" >> $GITHUB_OUTPUT
+            echo ${{ steps.release.outputs.release-notes }} >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+>>>>>>> ec2b44a (feat: always output version)
+            echo "type=${{ steps.release.outputs.type }}" >> $GITHUB_OUTPUT
+            echo "channel=${{ steps.release.outputs.channel }}" >> $GITHUB_OUTPUT
+            echo "git-head=${{ steps.release.outputs.git-head }}" >> $GITHUB_OUTPUT
+            echo "git-tag=${{ steps.release.outputs.git-tag }}" >> $GITHUB_OUTPUT
+            echo "name=${{ steps.release.outputs.name }}" >> $GITHUB_OUTPUT
+          fi
+
