@@ -2,7 +2,7 @@
   "name": "github-workflow-semantic-release",
   "dependencies": {
     "conventional-changelog-conventionalcommits": "^7.0.2",
-    "semantic-release": "^22.0.8",
+    "semantic-release": "^22.0.10",
     "semantic-release-tags": "^2.0.0"
   },
   "scripts": {
