@@ -12,6 +12,9 @@ policy:
       teams:
         - "nrkno/plattform-utvikleropplevelse"
 
+options:
+  ignore_update_merges: true
+
 approval_rules:
   - name: status checks
     description: A rule that requires status checks to be green
