@@ -6,15 +6,11 @@ merge:
     - method: squash
       trigger:
         max_commits: 3
-  method: merge
+  method: rebase
   options:
     squash:
       body: summarize_commits
       title: pull_request_title
-  ignore:
-    labels: ["do not merge", "nomerge", "noautomerge", "ignore"]
-    pr_body_substrings: ["Do not merge", "==DO_NOT_MERGE=="]
-    comment_substrings: ["Do not merge", "==DO_NOT_MERGE=="]
   required_statuses:
     - 'policy-bot: main'
 version: 1
