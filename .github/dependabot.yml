@@ -5,13 +5,13 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-      time: "09:00"
+      time: "13:00"
       timezone: "Europe/Oslo"
     open-pull-requests-limit: 5
   - package-ecosystem: npm
     directory: "/"
     schedule:
       interval: daily
-      time: "09:00"
+      time: "13:00"
       timezone: "Europe/Oslo"
     open-pull-requests-limit: 5
