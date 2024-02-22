@@ -10,7 +10,7 @@ on:
         default: true
       runs-on:
         type: string
-        default: nrk-azure-intern
+        default: ubuntu-latest
     outputs:
       # Outputs as described here: https://github.com/codfish/semantic-release-action/blob/main/action.yml#L56
       new-release-published:
