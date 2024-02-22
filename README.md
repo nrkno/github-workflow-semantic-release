@@ -36,5 +36,5 @@ jobs:
 ### Inputs
 - `release-enabled` (boolean, default `true`)
 - `lint-enabled` (boolean, default `true`)
-- `runs-on` (string, default `"nrk-azure-intern"`)
+- `runs-on` (string, default `"ubuntu-latest"`)
 <!-- autodoc end -->
