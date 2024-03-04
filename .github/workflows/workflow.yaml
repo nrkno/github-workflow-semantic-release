@@ -173,25 +173,6 @@ jobs:
           repository: nrkno/github-workflow-semantic-release
           ref: ${{ needs.setup.outputs.workflow_tag }}
           path: .github-workflow-semantic-release
-      - name: Set configuration
-        id: set_config
-        shell: bash
-        run: |
-          if [ -f ".releaserc.json" ]
-          then
-            echo "Using callers configuration for release config"
-          else
-            echo "Using workflow configuration for release config"
-            cp .github-workflow-semantic-release/.releaserc.json .releaserc.json
-          fi
-          repo_name=$(sed 's|.*/?||' <<<$GITHUB_ACTION_REPOSITORY)
-          sed "s/github-workflow-semantic-release/${repo_name}/" .github-workflow-semantic-release/package.json > package.json
-          cp .github-workflow-semantic-release/package-lock.json .
-      - name: Setup Node.js
-        uses: actions/setup-node@v4.0.2
-        with:
-          node-version: 'lts/*'
-          cache: npm
       - uses: codfish/semantic-release-action@v3.1.0
         id: release
         env: 
