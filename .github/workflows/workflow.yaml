@@ -167,12 +167,6 @@ jobs:
         uses: actions/checkout@v4.1.1
         with:
           fetch-depth: 0
-      - name: Checkout workflow
-        uses: actions/checkout@v4.1.1
-        with:
-          repository: nrkno/github-workflow-semantic-release
-          ref: ${{ needs.setup.outputs.workflow_tag }}
-          path: .github-workflow-semantic-release
       - uses: codfish/semantic-release-action@v3.1.0
         id: release
         env: 
