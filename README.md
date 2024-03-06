@@ -19,13 +19,18 @@ If you want to override the
 create a file in your repo named `.releaserc.json` and this will
 be used instead of the default in this workflow.
 
-Reference for a workflow job.
+Reference for a workflow job:
 
 ```yaml
+permissions:
+  contents: write
+  pull-requests: write
+  repository-projects: write
+
 jobs:
   commitlint_and_release:
     name: Commit lint and release
-    uses: nrkno/github-workflow-semantic-release/.github/workflows/workflow.yaml@v1
+    uses: nrkno/github-workflow-semantic-release/.github/workflows/workflow.yaml@v3
     with:
       # inputs
     secrets:
