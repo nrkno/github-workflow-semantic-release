@@ -1,0 +1,14 @@
+{
+  "name": "github-workflow-semantic-release",
+  "dependencies": {
+    "conventional-changelog-conventionalcommits": "^7.0.2",
+    "semantic-release": "^23.0.2",
+    "semantic-release-tags": "^2.0.0"
+  },
+  "scripts": {
+    "semantic-release": "semantic-release"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  }
+}
