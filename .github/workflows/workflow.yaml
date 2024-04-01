@@ -97,7 +97,7 @@ jobs:
             echo "Using workflow configuration for commitlint"
             echo "commitlintconfig=.github-workflow-semantic-release/commitlint.config.js" >> $GITHUB_OUTPUT
           fi
-      - uses: wagoid/commitlint-github-action@v5.4.5
+      - uses: wagoid/commitlint-github-action@v6.0.0
         id: lint
         continue-on-error: ${{ github.event_name == 'pull_request' }}
         with:
