@@ -17,7 +17,7 @@ be used instead of the default in this workflow.
 If you want to override the
 [semantic-release configuration](https://github.com/semantic-release/semantic-release/blob/master/docs/usage/configuration.md),
 create a file in your repo named `.releaserc.json` and this will
-be used instead of the default in this workflow.
+be used instead of the default in this workflow.  
 
 Reference for a workflow job:
 
