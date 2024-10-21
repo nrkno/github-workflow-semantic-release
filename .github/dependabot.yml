@@ -14,4 +14,7 @@ updates:
       interval: daily
       time: "13:00"
       timezone: "Europe/Oslo"
+    ignore:
+      - dependency-name: "conventional-changelog-conventionalcommits"
+        versions: [ ">=6.0.0" ]
     open-pull-requests-limit: 5
