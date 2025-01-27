@@ -188,7 +188,7 @@ jobs:
           sed "s/github-workflow-semantic-release/${repo_name}/" .github-workflow-semantic-release/package.json > package.json
           cp .github-workflow-semantic-release/package-lock.json .
       - name: Setup Node.js
-        uses: actions/setup-node@v4.1.0
+        uses: actions/setup-node@v4.2.0
         with:
           node-version: 'lts/*'
           cache: npm
