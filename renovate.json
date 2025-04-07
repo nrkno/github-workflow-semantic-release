@@ -1,0 +1,6 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+        "github>nrkno/nrk-bot-configs//plattform/utvikleropplevelse/renovate/renovate.json"
+    ]
+}

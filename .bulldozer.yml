@@ -1,16 +1,4 @@
 ---
-merge:
-  allow_merge_with_no_checks: false
-  delete_after_merge: true
-  merge_method:
-    - method: squash
-      trigger:
-        max_commits: 3
-  method: rebase
-  options:
-    squash:
-      body: summarize_commits
-      title: pull_request_title
-  required_statuses:
-    - 'policy-bot: main'
-version: 1
+remote: nrkno/nrk-bot-configs
+path: plattform/utvikleropplevelse/bulldozer/bulldozer.yaml
+ref: main
