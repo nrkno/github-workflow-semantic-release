@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   extends: ['@commitlint/config-conventional'],
   rules: {
     'body-max-line-length': [2, 'always', 256],
@@ -6,4 +6,4 @@ module.exports = {
     'subject-max-length': [0],
     'subject-case': [0, 'always', 'lower-case']  // Disable subject case rule
   },
-}
+};
