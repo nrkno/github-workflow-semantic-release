@@ -89,13 +89,13 @@ jobs:
         id: set_config
         shell: bash
         run: |
-          if [ -f "commitlint.config.js" ]
+          if [ -f "commitlint.config.mjs" ]
           then
             echo "Using callers configuration for commitlint"
-            echo "commitlintconfig=commitlint.config.json" >> $GITHUB_OUTPUT
+            echo "commitlintconfig=commitlint.config.mjs" >> $GITHUB_OUTPUT
           else
             echo "Using workflow configuration for commitlint"
-            echo "commitlintconfig=.github-workflow-semantic-release/commitlint.config.js" >> $GITHUB_OUTPUT
+            echo "commitlintconfig=.github-workflow-semantic-release/commitlint.config.mjs" >> $GITHUB_OUTPUT
           fi
       - uses: wagoid/commitlint-github-action@v6.2.1
         id: lint
@@ -196,7 +196,7 @@ jobs:
         run: npm ci
       - uses: codfish/semantic-release-action@v3.5.0
         id: release
-        env: 
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Get version
         id: version
@@ -232,11 +232,10 @@ jobs:
             echo "release-notes<<EOF" >> $GITHUB_OUTPUT
             echo "${{ steps.release.outputs.release-notes }}" >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
-            
+
             echo "type=${{ steps.release.outputs.type }}" >> $GITHUB_OUTPUT
             echo "channel=${{ steps.release.outputs.channel }}" >> $GITHUB_OUTPUT
             echo "git-head=${{ steps.release.outputs.git-head }}" >> $GITHUB_OUTPUT
             echo "git-tag=${{ steps.release.outputs.git-tag }}" >> $GITHUB_OUTPUT
             echo "name=${{ steps.release.outputs.name }}" >> $GITHUB_OUTPUT
           fi
-
