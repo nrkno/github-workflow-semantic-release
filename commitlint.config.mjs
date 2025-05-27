@@ -5,6 +5,6 @@ export default {
     'footer-max-line-length': [2, 'always', 256],
     'subject-max-length': [0],
     'subject-case': [0, 'always', 'lower-case'],  // Disable subject case rule
-    'header-max-length' : [2, 'always', 200]
+    'header-max-length': [2, 'always', 200]
   },
 };
