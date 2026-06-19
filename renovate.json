@@ -1,6 +1,7 @@
 {
-    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-    "extends": [
-        "github>nrkno/nrk-bot-configs//plattform/utvikleropplevelse/renovate/renovate.json"
-    ]
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "local>nrkno/nrk-bot-configs//plattform/utvikleropplevelse/renovate/renovate"
+  ],
+  "rebaseWhen": "behind-base-branch"
 }
