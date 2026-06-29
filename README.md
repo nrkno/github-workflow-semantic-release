@@ -28,14 +28,6 @@ jobs:
 - `release-enabled` (boolean, default `true`)
 - `lint-enabled` (boolean, default `true`)
 - `runs-on` (string, default `"ubuntu-latest"`)
-
-### Outputs
-- `released` — `'true'` when a new release was published, `'false'` otherwise
-- `version` — The new release's semantic version, e.g. `1.8.3`
-- `tag` — The new release's git tag, e.g. `v1.8.3`
-- `major` — Major version component, e.g. `1`
-- `minor` — Minor version component, e.g. `8`
-- `patch` — Patch version component, e.g. `3`
 <!-- autodoc end -->
 
 ---
