@@ -12,230 +12,70 @@ on:
         type: string
         default: ubuntu-latest
     outputs:
-      # Outputs as described here: https://github.com/codfish/semantic-release-action/blob/main/action.yml#L56
-      new-release-published:
-        description: "Either `'true'` when a new release was published or `'false'` when no release was published."
-        value: ${{ jobs.release.outputs.new-release-published}}
-      release-version:
-        description: "The new releases' semantic version, i.e. `1.8.3`."
-        value: ${{ jobs.release.outputs.release-version}}
-      release-major:
-        description: "The new releases' major version number, i.e. `1`."
-        value: ${{ jobs.release.outputs.release-major}}
-      release-minor:
-        description: "The new releases' minor version number, i.e. `8`."
-        value: ${{ jobs.release.outputs.release-minor}}
-      release-patch:
-        description: "The new releases' patch version number, i.e. `3`."
-        value: ${{ jobs.release.outputs.release-patch}}
-      release-notes:
-        description: "The release notes of the next release."
-        value: ${{ jobs.release.outputs.release-notes}}
-      type:
-        description: "The semver export type of the release, e.g. `major`, `prerelease`, etc."
-        value: ${{ jobs.release.outputs.type}}
-      channel:
-        description: "The release channel of the release."
-        value: ${{ jobs.release.outputs.channel}}
-      git-head:
-        description: "The git hash of the release."
-        value: ${{ jobs.release.outputs.git-head}}
-      git-tag:
-        description: "The version with v prefix."
-        value: ${{ jobs.release.outputs.git-tag}}
-      name:
-        description: "The release name."
-        value: ${{ jobs.release.outputs.name}}
+      released:
+        description: "'true' when a new release was published, 'false' otherwise."
+        value: ${{ jobs.release.outputs.released }}
+      version:
+        description: "The new release's semantic version, e.g. '1.8.3'."
+        value: ${{ jobs.release.outputs.version }}
+      tag:
+        description: "The new release's git tag, e.g. 'v1.8.3'."
+        value: ${{ jobs.release.outputs.tag }}
+      major:
+        description: "Major version component, e.g. '1'."
+        value: ${{ jobs.release.outputs.major }}
+      minor:
+        description: "Minor version component, e.g. '8'."
+        value: ${{ jobs.release.outputs.minor }}
+      patch:
+        description: "Patch version component, e.g. '3'."
+        value: ${{ jobs.release.outputs.patch }}
 
 name: Commit lint and semantic release
-jobs:
-  setup:
-    name: Setup
-    runs-on: ${{ inputs.runs-on }}
-    outputs:
-      workflow_tag: ${{ steps.workflow_tag.outputs.workflow_tag }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6.0.3
-      - name: Get workflow ref
-        id: workflow_tag
-        shell: bash
-        run: |
-          workflow_file="${GITHUB_WORKFLOW}"
-          if ! [ -f "${workflow_file}" ]
-          then
-            workflow_file="$(grep -El "^name: (\"|)${GITHUB_WORKFLOW}(\"|)$" .github/workflows/*)"
-          fi
-          workflow_tag="$(awk -F '[[:space:]@]+' '/github-workflow-semantic-release/ {print $4}' "${workflow_file}")"
-          echo "workflow_tag=${workflow_tag}" >> $GITHUB_OUTPUT
 
+jobs:
   commitlint:
-    needs: setup
     name: Commit lint
     runs-on: ${{ inputs.runs-on }}
     if: inputs.lint-enabled
     steps:
       - name: Checkout
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Checkout workflow
-        uses: actions/checkout@v6.0.3
+      - name: Lint commits
+        # NOTE (known limitation): on pull_request events, semrel lint resolves
+        # the commit range as latestAnnotatedTag→HEAD rather than baseRef→HEAD.
+        # Ensure all commits since the last release tag conform to conventional
+        # commit format before opening a PR.
+        uses: nrkno/github-action-sematic-release@2e3be1bd8646647deb62ba3068e7e6c14243f3ff
         with:
-          repository: nrkno/github-workflow-semantic-release
-          ref: ${{ needs.setup.outputs.workflow_tag }}
-          path: .github-workflow-semantic-release
-      - name: Set configuration
-        id: set_config
-        shell: bash
-        run: |
-          if [ -f "commitlint.config.mjs" ]
-          then
-            echo "Using callers configuration for commitlint"
-            echo "commitlintconfig=commitlint.config.mjs" >> $GITHUB_OUTPUT
-          else
-            echo "Using workflow configuration for commitlint"
-            echo "commitlintconfig=.github-workflow-semantic-release/commitlint.config.mjs" >> $GITHUB_OUTPUT
-          fi
-      - uses: wagoid/commitlint-github-action@v6.2.1
-        id: lint
-        continue-on-error: ${{ github.event_name == 'pull_request' }}
-        with:
-          configFile: ${{ steps.set_config.outputs.commitlintconfig }}
-      - uses: actions/github-script@v8.0.0
-        if: github.event_name == 'pull_request'
-        with:
-          script: |
-            if(`${{steps.lint.outcome}}` === "success") {
-              return "No errors";
-            };
-
-            output = `
-            You have commit message errors, your commit messages
-            must follow [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/#summary)
-
-            To correct, run \`git rebase -i HEAD~X\`, where X is number of commits, and change from pick to reword, save, and then change the commit message.
-
-            List of errors:
-            `;
-            // Set raw JSON result output here without string interpolation.
-            // The JSON string might contain backticks. Rely on GitHub Actions
-            // validation with fromJSON and toJSON.
-            const results = ${{ toJSON(fromJSON(steps.lint.outputs.results)) }};
-
-            results.forEach(result => {
-              if(result.warnings.length > 0 || result.errors.length > 0) {
-                output += `Commit ${result.hash}, message \`${result.message}\``;
-                output += "\n";
-                result.warnings.forEach(warning => {
-                  output += `⚠  ${warning}`;
-                });
-                result.errors.forEach(error => {
-                  output += `⧗  ${error}`;
-                });
-                output += "\n\n";
-              }
-            });
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: output
-            });
-
-            core.setFailed("commit message lint failed");
+          subcommand: lint
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   release:
     name: Release
-    needs: setup
-    outputs:
-      new-release-published: ${{ steps.version.outputs.new-release-published }}
-      release-version: ${{ steps.version.outputs.release-version }}
-      release-major: ${{ steps.version.outputs.release-major }}
-      release-minor: ${{ steps.version.outputs.release-minor }}
-      release-patch: ${{ steps.version.outputs.release-patch }}
-      release-notes: ${{ steps.version.outputs.release-notes }}
-      type: ${{ steps.version.outputs.type }}
-      channel: ${{ steps.version.outputs.channel }}
-      git-head: ${{ steps.version.outputs.git-head }}
-      git-tag: ${{ steps.version.outputs.git-tag }}
-      name: ${{ steps.version.outputs.name }}
     runs-on: ${{ inputs.runs-on }}
     if: inputs.release-enabled && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
+    permissions:
+      contents: write
+      pull-requests: read
+    outputs:
+      released: ${{ steps.semrel.outputs.released }}
+      version: ${{ steps.semrel.outputs.version }}
+      tag: ${{ steps.semrel.outputs.tag }}
+      major: ${{ steps.semrel.outputs.major }}
+      minor: ${{ steps.semrel.outputs.minor }}
+      patch: ${{ steps.semrel.outputs.patch }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Checkout workflow
-        uses: actions/checkout@v6.0.3
+          fetch-tags: true
+      - name: Release
+        id: semrel
+        uses: nrkno/github-action-sematic-release@2e3be1bd8646647deb62ba3068e7e6c14243f3ff
         with:
-          repository: nrkno/github-workflow-semantic-release
-          ref: ${{ needs.setup.outputs.workflow_tag }}
-          path: .github-workflow-semantic-release
-      - name: Set configuration
-        id: set_config
-        shell: bash
-        run: |
-          if [ -f ".releaserc.json" ]
-          then
-            echo "Using callers configuration for release config"
-          else
-            echo "Using workflow configuration for release config"
-            cp .github-workflow-semantic-release/.releaserc.json .releaserc.json
-          fi
-          repo_name=$(sed 's|.*/?||' <<<$GITHUB_ACTION_REPOSITORY)
-          sed "s/github-workflow-semantic-release/${repo_name}/" .github-workflow-semantic-release/package.json > package.json
-          cp .github-workflow-semantic-release/package-lock.json .
-      - name: Setup Node.js
-        uses: actions/setup-node@v6.4.0
-        with:
-          node-version: 'lts/*'
-          cache: npm
-      - name: Install dependencies
-        run: npm ci
-      # - uses: codfish/semantic-release-action@v5.0.0
-      #   id: release
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Get version
-        id: version
-        shell: bash
-        run: |
-          if [[ "${{ steps.release.outputs.new-release-published }}" == "false" ]]; then
-            VERSION=$(curl --silent "https://api.github.com/repos/${{ github.repository }}/releases/latest" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" | jq -r .name)
-
-            IFS='.' read -r -a VERSION_ARRAY <<< "${VERSION:1}"
-
-            echo "new-release-published=${{ steps.release.outputs.new-release-published }}" >> $GITHUB_OUTPUT
-            echo "release-version=${VERSION}" >> $GITHUB_OUTPUT
-            echo "release-major=${VERSION_ARRAY[0]}" >> $GITHUB_OUTPUT
-            echo "release-minor=${VERSION_ARRAY[1]}" >> $GITHUB_OUTPUT
-            echo "release-patch=${VERSION_ARRAY[2]}" >> $GITHUB_OUTPUT
-
-            echo "release-notes<<EOF" >> $GITHUB_OUTPUT
-            echo "${{ steps.release.outputs.release-notes }}" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-
-            echo "type=${{ steps.release.outputs.type }}" >> $GITHUB_OUTPUT
-            echo "channel=${{ steps.release.outputs.channel }}" >> $GITHUB_OUTPUT
-            echo "git-head=${{ steps.release.outputs.git-head }}" >> $GITHUB_OUTPUT
-            echo "git-tag=${VERSION}" >> $GITHUB_OUTPUT
-            echo "name=${VERSION}" >> $GITHUB_OUTPUT
-          else
-            echo "new-release-published=${{ steps.release.outputs.new-release-published }}" >> $GITHUB_OUTPUT
-            echo "release-version=${{ steps.release.outputs.release-version }}" >> $GITHUB_OUTPUT
-            echo "release-major=${{ steps.release.outputs.release-major }}" >> $GITHUB_OUTPUT
-            echo "release-minor=${{ steps.release.outputs.release-minor }}" >> $GITHUB_OUTPUT
-            echo "release-patch=${{ steps.release.outputs.release-patch }}" >> $GITHUB_OUTPUT
-
-            echo "release-notes<<EOF" >> $GITHUB_OUTPUT
-            echo "${{ steps.release.outputs.release-notes }}" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-
-            echo "type=${{ steps.release.outputs.type }}" >> $GITHUB_OUTPUT
-            echo "channel=${{ steps.release.outputs.channel }}" >> $GITHUB_OUTPUT
-            echo "git-head=${{ steps.release.outputs.git-head }}" >> $GITHUB_OUTPUT
-            echo "git-tag=${{ steps.release.outputs.git-tag }}" >> $GITHUB_OUTPUT
-            echo "name=${{ steps.release.outputs.name }}" >> $GITHUB_OUTPUT
-          fi
+          subcommand: release
+          token: ${{ secrets.GITHUB_TOKEN }}
