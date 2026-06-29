@@ -2,8 +2,14 @@
 on: [push, pull_request, workflow_dispatch]
 
 name: Commit lint and release
+
+permissions:
+  contents: write
+  pull-requests: read
+
 jobs:
   lint_release:
     uses: ./.github/workflows/workflow.yaml
+    secrets: inherit
     with:
       runs-on: ubuntu-latest
