@@ -1,0 +1,29 @@
+---
+name: Notify PRs
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Notify PRs
+        uses: nrkno/github-action-sematic-release@4e9e0cd1ef367ecb48ca492f8ad8874584d515ae
+        with:
+          subcommand: notify
+          token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          SEMREL_TAG: ${{ github.event.release.tag_name }}
+          SEMREL_VERSION: ${{ github.event.release.name }}
+          SEMREL_RELEASE_URL: ${{ github.event.release.html_url }}
