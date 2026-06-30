@@ -52,7 +52,7 @@ jobs:
         # the commit range as latestAnnotatedTag→HEAD rather than baseRef→HEAD.
         # Ensure all commits since the last release tag conform to conventional
         # commit format before opening a PR.
-        uses: nrkno/github-action-sematic-release@37857f9bc36f50010a5b6ceff6b30de4034fdba2
+        uses: nrkno/github-action-sematic-release@9c079624ab4beb1c4cedbe5d0ff73818f579449a
         with:
           subcommand: lint
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -79,7 +79,7 @@ jobs:
           fetch-tags: true
       - name: Release
         id: semrel
-        uses: nrkno/github-action-sematic-release@37857f9bc36f50010a5b6ceff6b30de4034fdba2
+        uses: nrkno/github-action-sematic-release@9c079624ab4beb1c4cedbe5d0ff73818f579449a
         with:
           subcommand: release
           token: ${{ secrets.GITHUB_TOKEN }}
