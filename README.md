@@ -30,10 +30,64 @@ jobs:
 real pinned version. See the hand-written Usage section elsewhere in this
 README for the correct, working example. -->
 <!-- autodoc start -->
-### Inputs
-- `release-enabled` (boolean, default `true`)
-- `lint-enabled` (boolean, default `true`)
-- `runs-on` (string, default `"ubuntu-latest"`)
+## Commit lint and semantic release
+
+
+### Optional Inputs
+
+- **release-enabled**: No description provided. (Default: `true`, type: boolean)
+- **lint-enabled**: No description provided. (Default: `true`, type: boolean)
+- **runs-on**: No description provided. (Default: `ubuntu-latest`, type: string)
+
+
+### Outputs
+
+- **released**: 'true' when a new release was published, 'false' otherwise. (type: unknown)
+- **version**: The new release's semantic version, e.g. '1.8.3'. (type: unknown)
+- **tag**: The new release's git tag, e.g. 'v1.8.3'. (type: unknown)
+- **major**: Major version component, e.g. '1'. (type: unknown)
+- **minor**: Minor version component, e.g. '8'. (type: unknown)
+- **patch**: Patch version component, e.g. '3'. (type: unknown)
+
+### Simple example usage (using steps 'uses' syntax)
+
+```yaml
+---
+name: workflow-example
+on:
+  pull_request:
+
+jobs:
+  example-job:
+    steps:
+      - name: example job
+        id: example_step
+        uses: nrkno/github-workflow-semantic-release/.github/workflows/workflow.yaml@main
+        with:
+
+```
+
+### Full example usage (using steps 'uses' syntax)
+
+```yaml
+---
+name: workflow-example
+on:
+  pull_request:
+
+jobs:
+  example-job:
+    steps:
+      - name: example job
+        id: example_step
+        uses: nrkno/github-workflow-semantic-release/.github/workflows/workflow.yaml@main
+        with:
+          release-enabled: 'true'
+          lint-enabled: 'true'
+          runs-on: 'ubuntu-latest'
+```
+
+
 <!-- autodoc end -->
 
 ---
