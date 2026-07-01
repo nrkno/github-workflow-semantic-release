@@ -1,4 +1,4 @@
-name: Commit lint and release
+name: Autodoc
 
 on:
   pull_request:
@@ -11,7 +11,7 @@ jobs:
   autodoc:
     uses: nrkno/github-workflow-action-workflow-autodoc/.github/workflows/workflow.yaml@84a54022b61e892fcc09d945795771d2d3822ad7 # v1.1.4
     with:
-      runs-on: 'ubuntu-latest'
+      runs-on: '"ubuntu-latest"'
       workflow_file: '.github/workflows/workflow.yaml'
       doc_file: 'README.md'
       start_token: '<!-- autodoc start -->'
