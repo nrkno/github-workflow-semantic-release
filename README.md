@@ -24,6 +24,11 @@ jobs:
       # inputs
 ```
 
+<!-- NOTE: the auto-generated usage example below has a known upstream bug
+(nrkno/github-action-action-workflow-autodoc) — it nests a reusable-workflow
+`uses:` inside `steps:` (invalid syntax) and hardcodes @main instead of the
+real pinned version. See the hand-written Usage section elsewhere in this
+README for the correct, working example. -->
 <!-- autodoc start -->
 ### Inputs
 - `release-enabled` (boolean, default `true`)
