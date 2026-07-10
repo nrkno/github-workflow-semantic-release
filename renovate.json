@@ -1,10 +1,58 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "local>nrkno/nrk-bot-configs//plattform/utvikleropplevelse/renovate/renovate"
+    "config:best-practices",
+    "mergeConfidence:all-badges"
   ],
-  "postUpdateOptions": [
-    "gomodTidy"
+  "ignorePresets": ["security:minimumReleaseAgeNpm"],
+  "timezone": "Europe/Oslo",
+  "minimumReleaseAge": "14 days",
+  "labels": ["dependencies"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "update image",
+      "managerFilePatterns": [
+        "/(^|/).*\\.tf$/"
+      ],
+      "matchStrings": [
+        "\\s*image\\s*=\\s*\"(?<depName>.*?):(?<currentValue>.*?)\"\\s*#\\s*renovate docker\\n"
+      ],
+      "datasourceTemplate": "docker"
+    }
   ],
-  "rebaseWhen": "behind-base-branch"
+  "schedule": ["after 8am and before 4pm every weekday"],
+  "hostRules": [
+    {
+      "matchHost": "terraform-registry.nrk.cloud",
+      "token": "{{ secrets.TF_REGISTRY }}"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["digest", "pin", "pinDigest", "replacement"],
+      "addLabels": ["digest"]
+    },
+    {
+      "matchPackageNames": ["github-actions"],
+      "matchDatasources": ["github-tags"],
+      "matchFileNames": ["\\.github\\/workflows\\/.*"],
+      "commitMessagePrefix": "ci(no-release): ",
+      "commitMessageAction": "bump",
+      "commitMessageTopic": "{{depName}} from {{currentVersion}} to {{newVersion}}"
+    },
+    {
+      "matchUpdateTypes": ["patch"],
+      "addLabels": ["patch"]
+    },
+    {
+      "matchUpdateTypes": ["minor"],
+      "addLabels": ["minor"]
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "addLabels": ["major"]
+    }
+  ],
+  "gitIgnoredAuthors": ["terraform-consumer[bot]", "bulldozer[bot]"]
 }
