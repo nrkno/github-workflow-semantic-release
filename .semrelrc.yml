@@ -1,0 +1,10 @@
+# .semrelrc.yml
+lint:
+  rules:
+    require-scope: false
+
+bump-rules:
+  breaking-change: major
+  feat: minor
+  fix: patch
+  chore: patch
