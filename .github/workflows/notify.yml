@@ -14,12 +14,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           fetch-tags: true
+          persist-credentials: false
       - name: Notify PRs
-        uses: nrkno/github-action-sematic-release@e55264c861b15bfa021daadeab0888a851a8f263
+        # TODO(bump): keep on the same SHA as workflow.yaml (see TODO there).
+        uses: nrkno/github-action-semantic-release@5afff0e9b820879b997a3e381d09d1dc3941dc00 # v0.14.5
         with:
           subcommand: notify
           token: ${{ secrets.GITHUB_TOKEN }}
