@@ -162,17 +162,24 @@ opening a PR.
 [`gh actions-lock`](https://github.com/github/gh-actions-lock) extension. It
 records the commit SHA of every action this repository uses, including
 transitive ones. Whenever a `uses:` reference in `.github/workflows/` is
-added, removed or changed (by hand or by a Renovate PR), run
+added, removed or changed (by hand or by a Renovate PR), update the lockfile
+in the same PR:
 
 ```sh
 gh extension install github/gh-actions-lock --pin v0.4.1  # once
-gh actions-lock
+git add .github/workflows                  # stage the edited workflows
+gh actions-lock                            # then run gh actions-lock
+git checkout -- '.github/workflows/*.y*ml' # restore the full-SHA pins
+git add .github/workflows/actions.lock
 ```
 
-and commit the updated `actions.lock` in the same PR. The `Actions lockfile`
-workflow runs `gh actions-lock --verify-local` on PRs that touch
-`.github/workflows/` and fails if an action reference has no lockfile entry.
-Do not edit the lockfile by hand.
+`gh actions-lock` rewrites every `uses:` pin to its tag form, which this
+repository does not allow: actions must be pinned to a full-length commit SHA.
+The `git checkout` step puts the SHA pins (with their `# vX.Y.Z` comment) back
+from the index, so only `actions.lock` changes. Do not edit the lockfile by
+hand. The `Actions lockfile` workflow runs `gh actions-lock --verify-local` on
+PRs that touch `.github/workflows/` and fails if an action reference has no
+lockfile entry.
 
 ## Notifications
 
