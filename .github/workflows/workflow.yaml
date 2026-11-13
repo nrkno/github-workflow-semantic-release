@@ -56,7 +56,8 @@ jobs:
         # commit format before opening a PR.
         # TODO(bump): update this SHA together with the release and
         # notify.yml pins once nrkno/github-action-semantic-release publishes
-        # the security-sweep release (currently the latest released, v0.14.5).
+        # the security-sweep release (currently the latest released, v0.14.5),
+        # then run `gh actions-lock`.
         uses: nrkno/github-action-semantic-release@5afff0e9b820879b997a3e381d09d1dc3941dc00 # v0.14.5
         with:
           subcommand: lint
@@ -88,7 +89,8 @@ jobs:
           fetch-tags: true
       - name: Release
         id: semrel
-        # TODO(bump): see the lint step; keep all semrel pins on the same SHA.
+        # TODO(bump): see the lint step; keep all semrel pins on the same SHA,
+        # then run `gh actions-lock`.
         uses: nrkno/github-action-semantic-release@5afff0e9b820879b997a3e381d09d1dc3941dc00 # v0.14.5
         with:
           subcommand: release

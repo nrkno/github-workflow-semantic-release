@@ -20,7 +20,8 @@ jobs:
           fetch-tags: true
           persist-credentials: false
       - name: Notify PRs
-        # TODO(bump): keep on the same SHA as workflow.yaml (see TODO there).
+        # TODO(bump): keep on the same SHA as workflow.yaml (see TODO there),
+        # then run `gh actions-lock`.
         uses: nrkno/github-action-semantic-release@5afff0e9b820879b997a3e381d09d1dc3941dc00 # v0.14.5
         with:
           subcommand: notify
