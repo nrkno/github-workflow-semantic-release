@@ -1,7 +1,7 @@
 # Semantic Release workflow through Github Actions
 
 Reusable Github workflow for linting commits and making releases using
-[nrkno/github-action-sematic-release](https://github.com/nrkno/github-action-sematic-release).
+[nrkno/github-action-semantic-release](https://github.com/nrkno/github-action-semantic-release).
 
 ## Usage
 
@@ -18,8 +18,8 @@ permissions:
 jobs:
   commitlint_and_release:
     name: Commit lint and release
-    uses: nrkno/github-workflow-semantic-release/.github/workflows/workflow.yaml@v5.0.2
-    secrets: inherit
+    # Pin by commit SHA; replace <sha> and the version comment with the latest release.
+    uses: nrkno/github-workflow-semantic-release/.github/workflows/workflow.yaml@<sha> # v5.x.y
     with:
       # inputs
 ```
@@ -92,14 +92,15 @@ jobs:
 
 ---
 
-## Migration from codfish/semantic-release
+## Migration from v4
 
-This workflow previously used `codfish/semantic-release-action`. All output
-names have been renamed and several outputs have been dropped.
+v4 and earlier used a different release engine. All output names changed in
+v5 and several outputs were dropped. Do not use v4 or earlier tags: their
+release job no longer works.
 
 ### Output name mapping
 
-| Old (`codfish`) name   | New (`semrel`) name | Notes                                                                 |
+| v4 name                | v5 (`semrel`) name  | Notes                                                                 |
 |------------------------|---------------------|-----------------------------------------------------------------------|
 | `new-release-published` | `released`         | renamed                                                               |
 | `release-version`      | `version`           | renamed                                                               |
@@ -145,7 +146,7 @@ initial-version: "0.0.0"         # baseline version used for the first release (
 ```
 
 Any field left out of the file keeps its default value. See the action's
-[`docs/configuration.md`](https://github.com/nrkno/github-action-sematic-release/blob/main/docs/configuration.md)
+[`docs/configuration.md`](https://github.com/nrkno/github-action-semantic-release/blob/main/docs/configuration.md)
 for the complete reference, including per-field defaults and edge cases.
 
 ### Known limitation
