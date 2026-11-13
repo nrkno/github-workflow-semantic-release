@@ -3,8 +3,8 @@ lint:
   rules:
     require-scope: false
 
+# Only fix, feat and breaking changes release. chore/ci/docs do not.
 bump-rules:
   breaking-change: major
   feat: minor
   fix: patch
-  chore: patch
