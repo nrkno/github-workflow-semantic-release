@@ -2,6 +2,7 @@ name: Autodoc
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     branches: [main]
 
 permissions: {}
@@ -9,7 +10,7 @@ permissions: {}
 jobs:
   autodoc:
     # Fork PRs must not get a write token.
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    if: github.event.pull_request.head.repo.full_name == github.repository && !github.event.pull_request.draft
     permissions:
       contents: write
     uses: nrkno/github-workflow-action-workflow-autodoc/.github/workflows/workflow.yaml@84a54022b61e892fcc09d945795771d2d3822ad7 # v1.1.4
