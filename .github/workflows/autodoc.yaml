@@ -9,16 +9,30 @@ permissions: {}
 
 jobs:
   autodoc:
+    # Keep the existing required context even when the job is skipped.
+    # Skipping a reusable call only reports the caller name (`autodoc`).
+    name: autodoc / Create documentation from workflow/action file
     # Fork PRs must not get a write token.
     if: github.event.pull_request.head.repo.full_name == github.repository && !github.event.pull_request.draft
+    runs-on: ubuntu-latest
     permissions:
       contents: write
-    uses: nrkno/github-workflow-action-workflow-autodoc/.github/workflows/workflow.yaml@84a54022b61e892fcc09d945795771d2d3822ad7 # v1.1.4
-    with:
-      runs-on: '"ubuntu-latest"'
-      workflow_file: '.github/workflows/workflow.yaml'
-      doc_file: 'README.md'
-      start_token: '<!-- autodoc start -->'
-      end_token: '<!-- autodoc end -->'
-      table: 'false'
-      debug: '0'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.head_ref }}
+          persist-credentials: true # The final step pushes to the PR branch.
+      - name: Update documentation
+        uses: nrkno/github-action-action-workflow-autodoc@v2.2.0
+        with:
+          workflow_file: '.github/workflows/workflow.yaml'
+          doc_file: 'README.md'
+          start_token: '<!-- autodoc start -->'
+          end_token: '<!-- autodoc end -->'
+          table: 'false'
+          debug: '0'
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v7.2.1
+        with:
+          commit_message: 'docs(autodoc): update documentation'
