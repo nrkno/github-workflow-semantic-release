@@ -87,6 +87,7 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
+          persist-credentials: false # semrel authenticates the HTTPS tag push with its token input.
       - name: Release
         id: semrel
         # TODO(bump): see the lint step; keep all semrel pins on the same SHA,
