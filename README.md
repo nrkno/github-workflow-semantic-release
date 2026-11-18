@@ -1,7 +1,7 @@
 # Semantic Release workflow through Github Actions
 
 Reusable Github workflow for linting commits and making releases using
-[nrkno/github-action-sematic-release](https://github.com/nrkno/github-action-sematic-release).
+[nrkno/github-action-semantic-release](https://github.com/nrkno/github-action-semantic-release).
 
 ## Usage
 
@@ -18,11 +18,20 @@ permissions:
 jobs:
   commitlint_and_release:
     name: Commit lint and release
-    uses: nrkno/github-workflow-semantic-release/.github/workflows/workflow.yaml@v5.0.2
-    secrets: inherit
+    # Pin by commit SHA; replace <sha> and the version comment with the latest release.
+    uses: nrkno/github-workflow-semantic-release/.github/workflows/workflow.yaml@<sha> # v5.x.y
     with:
       # inputs
 ```
+
+Use a Linux runner with Docker. Before moving off the workflow version that
+uses semrel `v0.14.5`, check that self-hosted runners are non-root, can use Docker
+with local bind mounts, and can reach GHCR and Sigstore. The digest-pinned
+action runs as the runner user and cannot access arbitrary runner files
+outside the workspace. See the
+[action's runtime migration guide](https://github.com/nrkno/github-action-semantic-release#runtime-migration).
+The reusable workflow still uses `v0.14.5` until the first digest-pinned action
+release is published. An unreleased action SHA cannot substitute for that release.
 
 <!-- NOTE: the auto-generated usage example below has a known upstream bug
 (nrkno/github-action-action-workflow-autodoc) — it nests a reusable-workflow
@@ -92,14 +101,16 @@ jobs:
 
 ---
 
-## Migration from codfish/semantic-release
+## Migration from v4
 
-This workflow previously used `codfish/semantic-release-action`. All output
-names have been renamed and several outputs have been dropped.
+v4 used a different release engine. The final v4 release (`v4.19.0`, also
+referenced by `v4`) disabled the publishing step, which earlier v4 releases
+included. Migrate to v5 for releases with semrel. The output names changed in
+v5 and several outputs were dropped.
 
 ### Output name mapping
 
-| Old (`codfish`) name   | New (`semrel`) name | Notes                                                                 |
+| v4 name                | v5 (`semrel`) name  | Notes                                                                 |
 |------------------------|---------------------|-----------------------------------------------------------------------|
 | `new-release-published` | `released`         | renamed                                                               |
 | `release-version`      | `version`           | renamed                                                               |
@@ -107,13 +118,13 @@ names have been renamed and several outputs have been dropped.
 | `release-minor`        | `minor`             | renamed                                                               |
 | `release-patch`        | `patch`             | renamed                                                               |
 | `git-tag`              | `tag`               | renamed                                                               |
-| `release-notes`        | *(dropped)*         | no equivalent in v0.12.1; use `semrel notes` separately               |
+| `release-notes`        | *(dropped)*         | not exposed by the reusable workflow; use `semrel notes` separately   |
 | `type`                 | *(dropped)*         | no equivalent                                                         |
 | `channel`              | *(dropped)*         | no equivalent                                                         |
 | `git-head`             | *(dropped)*         | no equivalent                                                         |
 | `name`                 | *(dropped)*         | no equivalent                                                         |
 
-Update all `steps.<id>.outputs.*` references in your consuming workflows
+Update all `needs.<job-id>.outputs.*` references in your consuming workflows
 according to the table above.
 
 ### Dropped behaviour
@@ -145,28 +156,46 @@ initial-version: "0.0.0"         # baseline version used for the first release (
 ```
 
 Any field left out of the file keeps its default value. See the action's
-[`docs/configuration.md`](https://github.com/nrkno/github-action-sematic-release/blob/main/docs/configuration.md)
+[`docs/configuration.md`](https://github.com/nrkno/github-action-semantic-release/blob/main/docs/configuration.md)
 for the complete reference, including per-field defaults and edge cases.
 
 ### Known limitation
 
-On `pull_request` events, `semrel lint` resolves the commit range as
+With the current `v0.14.5` action pin, `semrel lint` on `pull_request` resolves the commit range as
 `latestAnnotatedTag → HEAD`, not `baseRef → HEAD`. Ensure all commits
 since the last release tag conform to conventional commit format before
 opening a PR.
 
+## Lockfile upkeep
+
+`.github/workflows/actions.lock` is generated by the
+[`gh actions-lock`](https://github.com/github/gh-actions-lock) extension. Step
+`uses:` references keep full version tags (`actions/checkout@v7.0.1`); the
+lockfile records the commit SHA each tag resolved to, including transitive
+actions, and GitHub enforces those SHAs when the workflow runs. A moved or
+re-pointed tag therefore cannot change what runs. Whenever a `uses:` reference
+in `.github/workflows/` is added, removed or changed, update the lockfile in the
+same PR:
+
+```sh
+gh extension install github/gh-actions-lock --pin v0.4.1  # once
+gh actions-lock
+```
+
+Commit `actions.lock` together with any tag rewrite the extension makes.
+Renovate regenerates the lockfile in its action-bump PRs; run the command above for hand edits.
+
+Reusable workflow calls (`jobs.<job_id>.uses`) are not covered by the lockfile.
+Keep them pinned to a full commit SHA with a `# vX.Y.Z` comment.
+The `Actions lockfile` workflow runs `gh actions-lock --verify-local` on PRs that
+touch `.github/workflows/` and fails if an action reference has no lockfile
+entry. Do not edit the lockfile by hand.
+
 ## Notifications
 
 This repository ships its own `notify.yml`, which triggers on
-`release: published`. Once a release is published — via `workflow.yaml`'s
-`release` job creating a GitHub Release — `notify.yml` fires automatically
-and posts a comment on every PR included in that release, linking back to
-the release.
-
-No consumer action is needed for this to work in *this* repository: it
-requires `pull-requests: write` permission, which is already declared in
-the workflow itself. Note that `notify.yml` triggers on its own repo's
-`release` event and is not part of the reusable `workflow.yaml` — repos that
-consume `workflow.yaml` and want the same PR-notification behaviour should
-add an equivalent workflow of their own.
-
+`release: published` and comments on the PRs included in that release.
+GitHub does not start it for releases created with `GITHUB_TOKEN`, including
+releases created by the reusable workflow. `notify.yml` is separate from the
+reusable workflow; consumers who need notifications must configure their own
+trigger and grant the notifier `pull-requests: write`.

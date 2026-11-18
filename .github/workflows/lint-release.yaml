@@ -10,6 +10,5 @@ permissions:
 jobs:
   lint_release:
     uses: ./.github/workflows/workflow.yaml
-    secrets: inherit
     with:
       runs-on: ubuntu-latest

@@ -33,6 +33,9 @@ on:
 
 name: Commit lint and semantic release
 
+# Jobs declare their own least-privilege permissions.
+permissions: {}
+
 jobs:
   commitlint:
     name: Commit lint
@@ -42,17 +45,20 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Lint commits
-        # v0.3.0: runs as root (fixes .git/objects/ permission denied), supports
-        # .semrelrc.yml config, adds release narrative logging.
         # NOTE (known limitation): on pull_request events, semrel lint resolves
         # the commit range as latestAnnotatedTag→HEAD rather than baseRef→HEAD.
         # Ensure all commits since the last release tag conform to conventional
         # commit format before opening a PR.
-        uses: nrkno/github-action-semantic-release@2992c59c861ee4d16e3ed69372163a843072bea2
+        # TODO(bump): update this SHA together with the release and
+        # notify.yml pins once nrkno/github-action-semantic-release publishes
+        # the security-sweep release (currently the latest released, v0.14.5),
+        # then run `gh actions-lock`.
+        uses: nrkno/github-action-semantic-release@v0.14.5
         with:
           subcommand: lint
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -60,7 +66,11 @@ jobs:
   release:
     name: Release
     runs-on: ${{ inputs.runs-on }}
-    if: inputs.release-enabled && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
+    # pull_request_target runs with github.ref of the base branch; never release from it.
+    if: >-
+      inputs.release-enabled
+      && github.event_name != 'pull_request_target'
+      && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
     permissions:
       contents: write
       pull-requests: read
@@ -73,13 +83,16 @@ jobs:
       patch: ${{ steps.semrel.outputs.patch }}
     steps:
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
           fetch-tags: true
+          persist-credentials: false # semrel authenticates the HTTPS tag push with its token input.
       - name: Release
         id: semrel
-        uses: nrkno/github-action-semantic-release@a4af40eb13b5eb6133b787af0031a0a19d87ff9e # v0.14.4
+        # TODO(bump): see the lint step; keep all semrel pins on the same SHA,
+        # then run `gh actions-lock`.
+        uses: nrkno/github-action-semantic-release@v0.14.5
         with:
           subcommand: release
           token: ${{ secrets.GITHUB_TOKEN }}
