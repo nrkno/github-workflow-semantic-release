@@ -79,7 +79,7 @@ jobs:
           fetch-tags: true
       - name: Release
         id: semrel
-        uses: nrkno/github-action-semantic-release@a4af40eb13b5eb6133b787af0031a0a19d87ff9e # v0.14.4
+        uses: nrkno/github-action-semantic-release@5afff0e9b820879b997a3e381d09d1dc3941dc00 # v0.14.5
         with:
           subcommand: release
           token: ${{ secrets.GITHUB_TOKEN }}
